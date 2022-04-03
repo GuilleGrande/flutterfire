@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_performance/firebase_performance.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
+FirebaseAnalytics? analytics;
 
 void main() {
+  analytics = FirebaseAnalytics.instance;
+  FirebaseCrashlytics.instance.crash();
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   runApp(const MyApp());
 }
 
@@ -111,5 +119,19 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  analyticsEvent() {
+    analytics?.logEvent(name: '_incrementCounter');
+    print("_incrementCounter event logged");
+  }
+
+  performanceTrace() async {
+    Trace trace = FirebasePerformance.instance.newTrace('sample_trace');
+    const int sampleTraceDuration = 5;
+
+    trace.start();
+    await Future.delayed(const Duration(seconds: sampleTraceDuration));
+    trace.stop();
   }
 }
